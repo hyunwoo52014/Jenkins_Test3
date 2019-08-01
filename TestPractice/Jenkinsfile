@@ -7,26 +7,21 @@ pipeline {
         
     stages {
         
-        stage('Git Pull') {
-            steps {
-                git 'https://github.com/hyunwoo52014/Jenkins_Test3/'
-            }
-        }
-        
-        stage('Init') {
-            steps {
-                sh 'maven clean -f FrameWork/pom.xml'
-            }
-        }
+        /*stage('Init') {
+        *   steps {
+        *       sh 'maven clean -f FrameWork/pom.xml'
+        *   }
+        *}
+        */
         
         stage('Build') {
             steps {
-                sh 'maven install -B -DskipTests -f FrameWork/pom.xml'
+                sh 'maven install -B -DskipTests -f TestPractice/pom.xml'
             }
         }
         stage('Test') {
             steps {
-                sh 'maven test -f FrameWork/pom.xml'
+                sh 'maven test -f TestPractice/pom.xml'
             }
             post {
                 always {
