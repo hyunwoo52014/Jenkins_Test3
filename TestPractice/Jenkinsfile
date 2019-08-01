@@ -9,7 +9,7 @@ pipeline {
         
         stage('Init') {
            steps {
-               sh 'maven clean -f FrameWork/pom.xml'
+               sh 'maven clean -f TestPractice/pom.xml'
            }
         }
 
