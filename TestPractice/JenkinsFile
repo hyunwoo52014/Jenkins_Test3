@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    
+    options {
+        skipStagesAfterUnstable()
+    }
+        
+    stages {
+        
+        stage('Git Pull') {
+            steps {
+                git 'https://github.com/hyunwoo52014/Jenkins_Test3/'
+            }
+        }
+        
+        stage('Init') {
+            steps {
+                sh 'maven clean -f FrameWork/pom.xml'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                sh 'maven install -B -DskipTests -f FrameWork/pom.xml'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'maven test -f FrameWork/pom.xml'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage('Deploy to Tomcat9') { 
+            steps {
+                deploy adapters: [tomcat9(credentialsId: 'tomcat9_credentialsId', url: 'http://192.168.0.102:5000')], war: '**/*.war'
+            }
+        }
+    }
+}
