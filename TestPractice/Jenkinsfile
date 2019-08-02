@@ -9,8 +9,23 @@ pipeline {
         
         stage('Init') {
            steps {
+               slackSend color:"#3366FF", message : "Build Started - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)"
                sh 'maven clean -f TestPractice/pom.xml'
            }
+           
+           post {
+                success {
+                    slackSend color:"#66CC00" , message :"Success Init"
+                }
+                
+                failure {
+                    slackSend color:"#FF0000" , message :"Failed Init"
+                }
+                
+                unstable {
+                    slackSend color:"#FFFF00" , message :"unstable Init"
+                }
+            }
         }
 
         
@@ -18,7 +33,23 @@ pipeline {
             steps {
                 sh 'maven install -B -DskipTests -f TestPractice/pom.xml'
             }
+            
+            post {
+                success {
+                    slackSend color:"#66CC00" , message :"Success Build"
+                }
+                
+                failure {
+                    slackSend color:"#FF0000" , message :"Failed Build"
+                }
+                
+                unstable {
+                    slackSend color:"#FFFF00" , message :"unstable Build"
+                }
+            }
         }
+        
+        
         stage('Test') {
             steps {
                 sh 'maven test -f TestPractice/pom.xml'
@@ -27,12 +58,54 @@ pipeline {
                 always {
                     junit '**/target/surefire-reports/*.xml'
                 }
+                
+                success {
+                    slackSend color:"#66CC00" , message :"Success Test"
+                }
+                
+                failure {
+                    slackSend color:"#FF0000" , message :"Failed Test"
+                }
+                
+                unstable {
+                    slackSend color:"#FFFF00" , message :"unstable Test"
+                }
             }
         }
+        
+        
         stage('Deploy to Tomcat9') { 
             steps {
                 deploy adapters: [tomcat9(credentialsId: 'tomcat9_credentialsId', url: 'http://192.168.0.102:5000')], war: '**/*.war'
             }
+            
+            post {
+                success {
+                    slackSend color:"#66CC00" , message :"Success Git Pull"
+                }
+                
+                failure {
+                    slackSend color:"#FF0000" , message :"Failed Git Pull"
+                }
+                
+                unstable {
+                    slackSend color:"#FFFF00" , message :"unstable Git Pull"
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            slackSend color:"#66CC00" , message :"Success ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+        }
+        
+        failure {
+            slackSend color:"#FF0000" , message :"Failed ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+        }
+        
+        unstable {
+            slackSend color:"#FFFF00" , message :"unstable ${env.JOB_NAME} ${env.BUILD_NUMBER}"
         }
     }
 }
